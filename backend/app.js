@@ -5,11 +5,11 @@ const mongoose = require('mongoose');
 const stuffRoutes = require('./routes/stuff');
 const userRoutes = require('./routes/user');
 
-mongoose.connect('mongodb+srv://Rappson:Rappsondu91@cluster0.alhby.mongodb.net/cluster0?retryWrites=true&w=majority',
+mongoose.connect('mongodb+srv://Rappson:15032000@cluster0.npuwg.mongodb.net/Cluster0?retryWrites=true&w=majority',
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
-  .catch(() => console.log('Connexion à MongoDB échouée !'));
+  .catch(() => console.log('Oh oh ! Un problème avec mongo'));
 
 
 const app = express();
