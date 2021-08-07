@@ -11,7 +11,7 @@ exports.createSauce = (req, res, next) => {
     sauce.save()
         // j'implémente les resultats de reussite ou d'echec
         .then(() => res.status(201).json({ message: 'objet enregistré !' }))
-        .catch(error => res.status(400).json({ error }));
+        .catch(error => res.status(400).json({ message: "Oops !!" + error }));
 };
 
 exports.getAllSauce = (req, res, next) => {
