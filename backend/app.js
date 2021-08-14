@@ -1,6 +1,7 @@
 // const bodyParser = require('body-parser');
 const express = require('express');
 const mongoose = require('mongoose');
+const path = require('path');
 
 const stuffRoutes = require('./routes/stuff');
 const userRoutes = require('./routes/user');
@@ -18,8 +19,6 @@ const app = express();
 
 app.use(express.json());
 
-app.use(express.json()) // for parsing application/json
-app.use(express.urlencoded({ extended: true }))
 // CORS
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -30,6 +29,7 @@ app.use((req, res, next) => {
 
 // app.use(bodyParser.json)
 
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 app.use('/api/sauces', stuffRoutes);
 app.use('/api/auth', userRoutes);
