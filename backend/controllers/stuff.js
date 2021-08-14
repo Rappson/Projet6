@@ -1,11 +1,14 @@
 const Sauce = require('../models/Sauce');
 
 exports.createSauce = (req, res, next) => {
+    const sauceObject = JSON.parse(req.body.sauce);
+    console.log(sauceObject._id);
     // je supprime l'id qui sera fourni plus tard
-    delete req.body._id;
+    delete sauceObject._id;
     // je recupere mon schema et je fait une nouvelle sauce
     const sauce = new Sauce({
-        ...req.body
+        ...sauceObject,
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     });
     // je l'enregistre dans la base de donnée
     sauce.save()
