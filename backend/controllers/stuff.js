@@ -1,8 +1,10 @@
 const Sauce = require('../models/Sauce');
+const fs = require('fs');
+const { json } = require('body-parser');
+const { deleteOne } = require('../models/Sauce');
 
 exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);
-    console.log(sauceObject._id);
     // je supprime l'id qui sera fourni plus tard
     delete sauceObject._id;
     // je recupere mon schema et je fait une nouvelle sauce
@@ -31,17 +33,48 @@ exports.getOneSauce = (req, res, next) => {
 
 exports.modifySauce = (req, res, next) => {
     const sauceObject = req.file ?
-    {
-        ...JSON.parse(req.body.sauce),
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-    } : {...req.body};
+        {
+            ...JSON.parse(req.body.sauce),
+            imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+        } : { ...req.body };
     Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
         .then(() => res.status(200).json({ message: 'Sauce modifiée !!' }))
         .catch(error => res.status(400).json({ error }));
 };
 
 exports.deleteSauce = (req, res, next) => {
-    Sauce.deleteOne({ _id: req.params.id })
-        .then(() => res.status(200).json({ message: 'Produit supprimé !' }))
+    Sauce.findOne({ _id: req.params.id })
+        .then(sauce => {
+            const filename = sauce.imageUrl.split('/images/')[ 1 ];
+            fs.unlink(`images/${filename}`, () => {
+                Sauce.deleteOne({ _id: req.params.id })
+                    .then(() => res.status(200).json({ message: 'Produit supprimé !' }))
+                    .catch(error => res.status(400).json({error}));
+            })
+        })
         .catch(error => res.status(400).json({ error }));
+};
+
+exports.like = (req, res, next) => {
+    // Si j'aime = 1, l'utilisateur aime la sauce. 
+    // Si j'aime = 0, l'utilisateur annule ce qu'il aime ou ce qu'il n'aime pas.
+    // Si j'aime = -1, l'utilisateur n'aime pas la sauce.
+    console.log(req.body);
+    const sauceObject = req.body.like;
+    Sauce.findOne({_id: req.params.id})
+    .then(sauce => {
+        console.log(sauce);
+        if(sauceObject === 1){
+            sauce.usersLiked = req.body.userId;
+        }
+        else if(sauceObject == '-1'){
+            sauce.usersDisliked = req.body.userId;
+        }
+        else if(sauceObject === 0){
+        }
+        sauce.save()
+        res.status(200).json({sauceObject})
+    })
+    .catch(error => res.status(400).json(error))
+
 };
