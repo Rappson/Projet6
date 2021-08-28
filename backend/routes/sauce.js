@@ -5,7 +5,7 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const multer = require('../middleware/multer-config');
 
-const controllers = require('../controllers/stuff');
+const controllers = require('../controllers/sauce');
 
 router.post('/', auth, multer, controllers.createSauce);
 router.post('/:id/like', auth, controllers.like);
