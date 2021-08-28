@@ -42,3 +42,26 @@ function action() {
     }
 };
 action();
+
+
+
+
+function gestionDislikes(req, sauce){
+    /* si l'user n'aime pas la sauce:
+    je verifie dans les tableaux qu'il n'est pas présent sinon je le supprime des tableaux
+    je l'ajoute dans le tableau correspondant */
+
+    // position dans le tableau des likes et des dislikes de l'userId
+    let positionOnLike = sauce.usersLiked.indexOf(req.body.userId);
+    let positionOnDisLike = sauce.usersDisliked.indexOf(req.body.userId);
+
+    // si la recherche retourne -1 c'est qu'il n'est pas présent dans les tableaux
+    if (positionOnLike != -1) {
+        sauce.usersLiked.splice(positionOnLike, 1);
+        console.log('id supprimé du tableau des likes');
+    } else if (positionOnDisLike != -1) {
+         sauce.usersDisliked.splice(positionOnDisLike, 1);
+        console.log('id supprimé du tableau des dislikes');
+    }
+sauce.usersDisliked.push(req.body.userId)
+}

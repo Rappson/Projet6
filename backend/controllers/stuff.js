@@ -1,5 +1,6 @@
 const Sauce = require('../models/Sauce');
 const fs = require('fs');
+const likes = require('../services/like');
 
 exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);
@@ -8,8 +9,11 @@ exports.createSauce = (req, res, next) => {
     // je recupere mon schema et je fait une nouvelle sauce
     const sauce = new Sauce({
         ...sauceObject,
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
         // METTRE LES LIKES
+        likes: 0, dislikes: 0,
+        usersLiked: [],
+        usersDisliked: []
     });
     // je l'enregistre dans la base de donnée
     sauce.save()
@@ -54,50 +58,11 @@ exports.deleteSauce = (req, res, next) => {
         .catch(error => res.status(400).json({ error }));
 };
 
-function gestionLikes(req, sauce) {
-    /*si l'user aime la sauce:
-    je verifie dans les tableaux qu'il n'est pas présent sinon je le supprime des tableaux
-    je l'ajoute dans le tableau correspondant
-    */
-
-    if (req.body.like === 1) {
-        // position dans le tableau des likes et des dislikes de l'userId
-        let positionOnLike = sauce.usersLiked.indexOf(req.body.userId);
-        let positionOnDisLike = sauce.usersDisliked.indexOf(req.body.userId);
-
-        // je supprime l'userId des tableaux
-        if (positionOnLike != -1) {
-            sauce.usersLiked.splice(positionOnLike, 1);
-            console.log('id supprimé du tableau des likes');
-        } else if (positionOnDisLike != -1) {
-             sauce.usersDisliked.splice(positionOnDisLike, 1);
-            console.log('id supprimé du tableau des dislikes');
-        }
-        sauce.usersLiked.push(req.body.userId)
-
-        sauce.likes = sauce.usersLiked.length
-        sauce.save()
-    }
-
-    // résultat de la requete
-    console.log(sauce);
-}
-
 exports.like = (req, res, next) => {
-    // Si j'aime = 1, l'utilisateur aime la sauce. 
-    // Si j'aime = 0, l'utilisateur annule ce qu'il aime ou ce qu'il n'aime pas.
-    // Si j'aime = -1, l'utilisateur n'aime pas la sauce.
-
     Sauce.findOne({ _id: req.params.id })
         .then(sauce => {
-            // userId et résultat du like
-            console.log(req.body);
-
-            gestionLikes(req, sauce);
+            likes(req, sauce, req.body.like)
             res.status(200).json({ message: 'like posté !' })
         })
-        .catch(error => {
-            res.status(400).json({ error })
-            console.log(error);
-        });
+        .catch(error => res.status(400).json({ error }));
 };
