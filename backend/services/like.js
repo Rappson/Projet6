@@ -12,7 +12,7 @@ module.exports = (req, sauce, like) => {
             sauce.usersDisliked.splice(positionOnDisLike, 1);
         }
     }
-    
+
     // si l'user aime la sauce
     if (like === 1) {
         sauce.usersLiked.push(req.body.userId)
@@ -23,15 +23,10 @@ module.exports = (req, sauce, like) => {
         sauce.usersDisliked.push(req.body.userId)
         console.log("dislike accepté !");
     }
-    // si l'user cancel son action
-    else if (like === 0) {
-        console.log('avis retiré !');
-    }
 
     // mis à jour du nombre de likes et de dislikes
     sauce.likes = sauce.usersLiked.length
     sauce.dislikes = sauce.usersDisliked.length
 
     sauce.save()
-    console.log(sauce);
 };
