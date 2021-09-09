@@ -4,17 +4,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 exports.signup = (req, res, next) => {
-    // faire la verification 
-    /* SI l'user est deja présent dans la base de données
-    RETOURNE une erreur 
-     */
-    User.findOne({email: req.body.email})
-    .then(research => {
-        console.log(research);
-        if (research.email != undefined || research.email != null){
-            res.status(401).json({error: "L'email est dejà utilisé, veuillez vous connecter ou en choisir un différent"})
-        }
-    })
     
     bcrypt.hash(req.body.password, 10)
         .then(hash => {
