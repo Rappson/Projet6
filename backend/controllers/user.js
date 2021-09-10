@@ -4,7 +4,10 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 exports.signup = (req, res, next) => {
+    /* Le mdp doit avoir des critères de validation
+    ex: 8 caractère max
     
+    l'email ne doit pas contenir de symbole (=+-<>)*/
     bcrypt.hash(req.body.password, 10)
         .then(hash => {
             const user = new User({
@@ -33,6 +36,8 @@ exports.login = (req, res, next) => {
                         userId: user._id,
                         token: jwt.sign(
                             { userId: user._id },
+
+                            /* LA CLE DOIT ETRE MODIFIE */
                             'RANDOM_TOKEN_SECRET',
                             { expiresIn: '24h' }
                         )

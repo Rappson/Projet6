@@ -6,6 +6,7 @@ const path = require('path');
 const sauceRoutes = require('./routes/sauce');
 const userRoutes = require('./routes/user');
 
+/* Le mdp doit etre masqué */
 mongoose.connect('mongodb+srv://Rappson:15032000@cluster0.npuwg.mongodb.net/Cluster0?retryWrites=true&w=majority',
   {
     useNewUrlParser: true,
@@ -27,7 +28,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// app.use(bodyParser.json)
 
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
