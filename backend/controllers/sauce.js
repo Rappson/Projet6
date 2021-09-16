@@ -4,8 +4,10 @@ const likes = require('../services/like');
 
 exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);
+
     // je supprime l'id qui sera fourni plus tard
     delete sauceObject._id;
+    
     // je recupere mon schema et je fait une nouvelle sauce
     const sauce = new Sauce({
         ...sauceObject,
@@ -15,6 +17,7 @@ exports.createSauce = (req, res, next) => {
     });
     // je l'enregistre dans la base de donnée
     sauce.save()
+
         // j'implémente les resultats de reussite ou d'echec
         .then(() => res.status(201).json({ message: 'objet enregistré !' }))
         .catch(error => res.status(400).json({ message: "Oops !!" + error }));

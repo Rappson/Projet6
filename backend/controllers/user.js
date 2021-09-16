@@ -5,7 +5,7 @@ const User = require('../models/user');
 
 exports.signup = (req, res, next) => {
     /* Le mdp doit avoir des critères de validation
-    ex: 8 caractère max
+    ex: 8 caractère min
     
     l'email ne doit pas contenir de symbole (=+-<>)*/
     bcrypt.hash(req.body.password, 10)
