@@ -12,6 +12,7 @@ exports.createSauce = (req, res, next) => {
     const sauce = new Sauce({
         ...sauceObject,
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+        // mettre en default dans model
         usersLiked: [],
         usersDisliked: []
     });
@@ -20,6 +21,7 @@ exports.createSauce = (req, res, next) => {
 
         // j'implémente les resultats de reussite ou d'echec
         .then(() => res.status(201).json({ message: 'objet enregistré !' }))
+        //  changer l'erreur
         .catch(error => res.status(400).json({ message: "Oops !!" + error }));
 };
 

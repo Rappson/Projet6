@@ -3,21 +3,8 @@ const jwt = require('jsonwebtoken');
 const Joi = require('joi');
 
 const User = require('../models/user');
-const joiLog = require('../middleware/joi-login');
-const { message } = require('../middleware/joi-login');
+const joiLog = require('../services/joi-login');
 
-
-/* TEST 
-const joiTest = joiLog.validate({ mail: "Axel.grolier@gmail.com", password: "testetst"})
-
-console.log(joiTest);
-console.log(joiTest.error);
-
-user.save()
-                    .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
-                    .catch(error => res.status(400).json({ error }));
-
-TEST */
 
 exports.signup = (req, res, next) => {
     /* 
