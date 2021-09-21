@@ -2,33 +2,32 @@ const Sauce = require('../models/Sauce');
 const fs = require('fs');
 const likes = require('../services/like');
 
-const Joi = require('joi');
 const JoiCreate = require('../services/joi-create');
-const JoiModify = require('../services/joi-modify');
 
 
 exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);
 
-    // je supprime l'id qui sera fourni plus tard
-    delete sauceObject._id;
+    const createValidate = JoiCreate.validate({
+        ...sauceObject,
+        likes: 0,
+        dislikes: 0,
+        usersLikes: [],
+        usersDislikes: []
+    });
 
-    /* JOI */
-    const createValidate = JoiCreate.validate({...sauceObject});
-    console.log(createValidate.value);
-    /* JOI */
-    
-    // je recupere mon schema et je fait une nouvelle sauce
     const sauce = new Sauce({
-        createValidate,
+        name: createValidate.value.name,
+        manufacturer: createValidate.value.manufacturer,
+        description: createValidate.value.description,
+        mainPepper: createValidate.value.mainPepper,
+        heat: createValidate.value.heat,
+        userId: createValidate.value.userId,
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
     });
-    // je l'enregistre dans la base de donnée
     sauce.save()
 
-        // j'implémente les resultats de reussite ou d'echec
         .then(() => res.status(201).json({ message: 'objet enregistré !' }))
-        //  changer l'erreur
         .catch(error => res.status(400).json({ error }));
 };
 
