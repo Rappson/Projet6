@@ -2,19 +2,26 @@ const Sauce = require('../models/Sauce');
 const fs = require('fs');
 const likes = require('../services/like');
 
+const Joi = require('joi');
+const JoiCreate = require('../services/joi-create');
+const JoiModify = require('../services/joi-modify');
+
+
 exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);
 
     // je supprime l'id qui sera fourni plus tard
     delete sauceObject._id;
+
+    /* JOI */
+    const createValidate = JoiCreate.validate({...sauceObject});
+    console.log(createValidate.value);
+    /* JOI */
     
     // je recupere mon schema et je fait une nouvelle sauce
     const sauce = new Sauce({
-        ...sauceObject,
+        createValidate,
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-        // mettre en default dans model
-        usersLiked: [],
-        usersDisliked: []
     });
     // je l'enregistre dans la base de donnée
     sauce.save()
@@ -22,7 +29,7 @@ exports.createSauce = (req, res, next) => {
         // j'implémente les resultats de reussite ou d'echec
         .then(() => res.status(201).json({ message: 'objet enregistré !' }))
         //  changer l'erreur
-        .catch(error => res.status(400).json({ message: "Oops !!" + error }));
+        .catch(error => res.status(400).json({ error }));
 };
 
 exports.getAllSauce = (req, res, next) => {

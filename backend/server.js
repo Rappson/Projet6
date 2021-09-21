@@ -1,8 +1,6 @@
 const http = require('http');
 const app = require('./app');
 const express = require('express');
-const dotenv = require('dotenv');
-dotenv.config()
 
 // variables d'environnement
 const dotenv = require('dotenv');
