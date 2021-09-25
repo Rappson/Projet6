@@ -3,8 +3,9 @@ const app = require('./app');
 const express = require('express');
 
 // variables d'environnement
-const dotenv = require('dotenv');
-dotenv.config();
+const dotenv = require('dotenv').config("");
+console.log(process.env.CACAHUETE);
+
 
 const normalizePort = val => {
   const port = parseInt(val, 10);
@@ -17,7 +18,7 @@ const normalizePort = val => {
   }
   return false;
 };
-const port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 const errorHandler = error => {
