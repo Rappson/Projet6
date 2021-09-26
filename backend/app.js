@@ -1,4 +1,6 @@
-// const bodyParser = require('body-parser');
+const dotenv = require('dotenv').config();
+const environment = process.env;
+
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -6,8 +8,7 @@ const path = require('path');
 const sauceRoutes = require('./routes/sauce');
 const userRoutes = require('./routes/user');
 
-/* Le mdp doit etre masqué */
-mongoose.connect('mongodb+srv://Rappson:15032000@cluster0.npuwg.mongodb.net/Cluster0?retryWrites=true&w=majority',
+mongoose.connect(`mongodb+srv://${environment.NAME_DB}:${environment.PASSWORD_DB}@${environment.CLUSTER}.npuwg.mongodb.net/${environment.CLUSTER}?retryWrites=true&w=majority`,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true

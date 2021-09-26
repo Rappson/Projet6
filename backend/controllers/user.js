@@ -1,3 +1,5 @@
+const dotenv = require('dotenv').config();
+
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
@@ -50,8 +52,7 @@ exports.login = (req, res, next) => {
                         token: jwt.sign(
                             { userId: user._id },
 
-                            /* LA CLE DOIT ETRE MODIFIE */
-                            'RANDOM_TOKEN_SECRET',
+                            process.env.TOKEN_SECRET,
                             { expiresIn: '24h' }
                         )
                     });

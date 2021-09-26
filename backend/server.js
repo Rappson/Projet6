@@ -4,7 +4,6 @@ const express = require('express');
 
 // variables d'environnement
 const dotenv = require('dotenv').config("");
-console.log(process.env.CACAHUETE);
 
 
 const normalizePort = val => {
