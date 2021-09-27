@@ -8,7 +8,7 @@ const path = require('path');
 const sauceRoutes = require('./routes/sauce');
 const userRoutes = require('./routes/user');
 
-mongoose.connect(`mongodb+srv://${environment.NAME_DB}:${environment.PASSWORD_DB}@${environment.CLUSTER}.npuwg.mongodb.net/${environment.CLUSTER}?retryWrites=true&w=majority`,
+mongoose.connect(`mongodb+srv://${environment.USER_DB}:${environment.PASSWORD_DB}@${environment.HOST}/Cluster0?retryWrites=true&w=majority`,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -23,6 +23,7 @@ app.use(express.json());
 
 // CORS
 app.use((req, res, next) => {
+  // modifié les autorisations 
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');

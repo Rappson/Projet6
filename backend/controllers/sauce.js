@@ -39,18 +39,19 @@ exports.getOneSauce = (req, res, next) => {
 };
 
 exports.modifySauce = (req, res, next) => {
-    const requestValidation = req.body;
-    const JoiValidate = JoiCreate.validate({
-        ...requestValidation,
+    const data = req.body;
+    const sauceValidate = JoiCreate.validate({
+        ...data,
         _id: req.params.id,
     })
 
     const sauceObject = req.file ? // if req.file exist
         {
-            ...JoiValidate.value,
+            ...sauceValidate.value,
             imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-        } : { ...JoiValidate.value }; // otherwise just return value
-    Sauce.updateOne({ _id: JoiValidate.value._id }, { ...sauceObject, _id: JoiValidate.value._id })
+        } : { ...sauceValidate.value }; // otherwise just return value
+
+    Sauce.updateOne({ _id: sauceValidate.value._id }, { ...sauceObject, _id: sauceValidate.value._id })
         .then(() => res.status(200).json({ message: 'Sauce modifiée !!' }))
         .catch(error => res.status(400).json({ error }));
 };
