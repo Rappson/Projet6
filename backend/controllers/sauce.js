@@ -47,34 +47,38 @@ exports.modifySauce = (req, res, next) => {
     const sauceObject =
     {
         ...sauceValidate.value,
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     }
-    let test = Sauce.findOne({ _id: req.params.id })
+
+
+    Sauce.findOne({ _id: req.params.id })
         .then(sauce => {
-            /* 
-            SI l'image n'est pas égale à l'ancienne
-            SUPPRIMER l'ancienne et la remplacer par la nouvelle
-            */
-            const img = sauce.imageUrl;
+            console.log(sauce);
+            if (req.body.userId === sauce.userId) {
+                const img = sauce.imageUrl;
 
-            if (req.file && img != `${req.protocol}://${req.get('host')}/images/${req.file.filename}`) {
-                // si l'image change
-                const filename = sauce.imageUrl.split('/images/')[ 1 ];
-                fs.unlinkSync(`images/${filename}`)
-
-                Sauce.updateOne({ _id: sauceValidate.value._id }, { ...sauceObject, _id: sauceValidate.value._id })
-                .then(() => res.status(200).json({ message: 'Sauce modifiée !!' }))
-                .catch(error => res.status(400).json({ error }));
+                if (req.file && img != `${req.protocol}://${req.get('host')}/images/${req.file.filename}`) {
+                    // si l'image change
+                    const filename = sauce.imageUrl.split('/images/')[ 1 ];
+                    fs.unlink(`images/${filename}`, () => {
+                        Sauce.updateOne({ _id: sauceValidate.value._id },
+                            {
+                                ...sauceObject,
+                                imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+                                _id: sauceValidate.value._id
+                            })
+                            .then(() => res.status(200).json({ message: 'Sauce modifiée !!' }))
+                            .catch(error => res.status(400).json({ error }));;
+                    })
+                } else {
+                    Sauce.updateOne({ _id: sauceValidate.value._id }, { ...sauceObject, _id: sauceValidate.value._id })
+                        .then(() => res.status(200).json({ message: 'Sauce modifiée !!' }))
+                        .catch(error => res.status(400).json({ error }));
+                }
             } else{
-                Sauce.updateOne({ _id: sauceValidate.value._id }, { ...sauceObject, _id: sauceValidate.value._id })
-                .then(() => res.status(200).json({ message: 'Sauce modifiée !!' }))
-                .catch(error => res.status(400).json({ error }));
+                throw `You are not allowed to do this action`;
+
             }
         })
-
-    // Sauce.updateOne({ _id: sauceValidate.value._id }, { ...sauceObject, _id: sauceValidate.value._id })
-    //     .then(() => res.status(200).json({ message: 'Sauce modifiée !!' }))
-    //     .catch(error => res.status(400).json({ error }));
 };
 
 exports.deleteSauce = (req, res, next) => {
