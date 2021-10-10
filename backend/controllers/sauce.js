@@ -1,6 +1,7 @@
 const Sauce = require('../models/Sauce');
 const fs = require('fs');
 const likes = require('../services/like');
+const User = require('../models/user');
 
 const JoiCreate = require('../services/joi-create');
 
@@ -53,7 +54,14 @@ exports.modifySauce = (req, res, next) => {
     Sauce.findOne({ _id: req.params.id })
         .then(sauce => {
             console.log(sauce);
-            if (req.body.userId === sauce.userId) {
+            const authId = req.body.onlineUser;
+            const sauceUserId = sauce.userId;
+            console.log(authId);
+            User.findOne({_id : req.body.onlineUser})
+            .then(user =>{
+                console.log(user);
+            })
+            if (sauceUserId === authId) {
                 const img = sauce.imageUrl;
 
                 if (req.file && img != `${req.protocol}://${req.get('host')}/images/${req.file.filename}`) {
@@ -70,13 +78,13 @@ exports.modifySauce = (req, res, next) => {
                             .catch(error => res.status(400).json({ error }));;
                     })
                 } else {
+                    // si l'image ne change pas
                     Sauce.updateOne({ _id: sauceValidate.value._id }, { ...sauceObject, _id: sauceValidate.value._id })
                         .then(() => res.status(200).json({ message: 'Sauce modifiée !!' }))
                         .catch(error => res.status(400).json({ error }));
                 }
             } else{
-                throw `You are not allowed to do this action`;
-
+                console.error( `You are not allowed to do this action !!!`);
             }
         })
 };
