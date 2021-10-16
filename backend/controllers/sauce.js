@@ -40,37 +40,44 @@ exports.getOneSauce = (req, res, next) => {
 };
 
 exports.modifySauce = (req, res, next) => {
-    Sauce.findOne({ _id: req.body.id })
+    Sauce.findOne({ _id: req.params.id })
         .then(sauce => {
-            /* SI il y a un changement d'image
-            modifié le body et changer l'image
-            SINON
-            change juste le body 
-            */
-            const modifiedObject = validationJoi.validate({
-                ...req.body,
-                _id: req.body.id
-            })
+            let payload = req.body;
+
+            if (req.file) {
+                payload = JSON.parse(req.body.sauce)
+            }
+
+            const { error, value } = validationJoi.validate(payload);
+            value.id = sauce._id;
+            if (error) {
+                res.status(400).json({ error })
+                console.log(error);
+                return
+            }
             /* 
-            CE QUI ME RESTE A FAIRE :
-            VERIFIER si l'id est correct
+            CE QUI BLOQUE: 
+            value
+            comparer les ancien commits et les cours
             */
+
+            console.log(value);
+            console.log(req.file);
+            let sauceObject = {};
             if (req.file) {
                 const filename = sauce.imageUrl.split('/images/')[ 1 ];
                 fs.unlink(`images/${filename}`, () => {
-                    sauce.updateOne({ _id: modifiedObject.value._id }, {
-                        ...modifiedObject.value,
-                        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-                        _id: modifiedObject.value._id
-                    })
-                    .then(() => res.status(200).json({message: 'Sauce modifié !'}))
-                    .catch(error => res.status(400).json({error}));
+                    sauceObject = {
+                        ...value,
+                        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+                    }
                 })
             } else {
-                sauce.updateOne({_id: modifiedObject.value._id}, {...modifiedObject.value, _id: modifiedObject.value._id})
-                .then(() => res.status(200).json({message: 'Sauce modifié !'}))
-                .catch(error => res.status(400).json({error}));
+                sauceObject = {
+                    ...value
+                }
             }
+            sauce.updateOne({ _id: value.id }, { ...sauceObject, _id: value.id })
         })
 };
 
