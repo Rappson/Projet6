@@ -40,28 +40,42 @@ exports.getOneSauce = (req, res, next) => {
 };
 
 exports.modifySauce = (req, res, next) => {
-    
+    // suppression de l'image modifiée
+    let deleteImg = (Sauce) => {
+        Sauce.findOne({ _id: req.params.id })
+            .then(sauce => {
+                const filename = sauce.imageUrl.split('/images/')[ 1 ];
+                fs.unlink(`images/${filename}`, () => {
+                    console.log(`Image supprimée`);
+                })
+            })
+    };
+    // correctifs
     let payload = req.body;
     if (req.file) {
+        deleteImg(Sauce)
         payload = JSON.parse(req.body.sauce)
     }
-
+    // validation des données
     const { error, value } = validationJoi.validate(payload)
-
-    if(error){
-        res.status(400).json({error});
+    // gestion des erreurs
+    if (error) {
+        res.status(400).json({ error });
         console.log(error);
         return
     }
-
+    // modifications de l'objet en cas de changement d'image
     if (req.file) {
         sauceObject = {
             ...value,
             imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
         }
-    } else {
+    }
+    // modification sans changement d'image
+    else {
         sauceObject = { ...value }
     }
+    // sauvegarde de la modification
     Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
         .then(() => res.status(200).json({ message: 'Objet modifié' }))
         .catch(error => res.status(400).json({ error }));
