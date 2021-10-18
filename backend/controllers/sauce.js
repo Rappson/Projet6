@@ -40,32 +40,31 @@ exports.getOneSauce = (req, res, next) => {
 };
 
 exports.modifySauce = (req, res, next) => {
-console.log(req.body);
-    /* 
-    ce qu'il faut que je fasse:
-    -verifier avec joi
-    -supprimer les photos après modification
-    */
-    Sauce.findOne({ _id: req.params.id })
-        .then(sauce => {
-            let sauceObject = {};
-            if (req.file) {
-                const filename = sauce.imageUrl.split('/images/')[ 1 ];
-                fs.unlink(`images/${filename}`, () => {
-                    sauceObject = {
-                        ...JSON.parse(req.body.sauce),
-                        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-                    }
-                })
-            } else {
-                sauceObject = { ...req.body }
-            }
-console.log(sauceObject);
-            Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
-                .then(() => res.status(200).json({ message: 'Objet modifié' }))
-                .catch(error => res.status(400).json({ error }));
+    
+    let payload = req.body;
+    if (req.file) {
+        payload = JSON.parse(req.body.sauce)
+    }
 
-        })
+    const { error, value } = validationJoi.validate(payload)
+
+    if(error){
+        res.status(400).json({error});
+        console.log(error);
+        return
+    }
+
+    if (req.file) {
+        sauceObject = {
+            ...value,
+            imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+        }
+    } else {
+        sauceObject = { ...value }
+    }
+    Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
+        .then(() => res.status(200).json({ message: 'Objet modifié' }))
+        .catch(error => res.status(400).json({ error }));
 };
 
 exports.deleteSauce = (req, res, next) => {
