@@ -1,4 +1,6 @@
-// const bodyParser = require('body-parser');
+const dotenv = require('dotenv').config();
+const environment = process.env;
+
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -6,8 +8,7 @@ const path = require('path');
 const sauceRoutes = require('./routes/sauce');
 const userRoutes = require('./routes/user');
 
-/* Le mdp doit etre masqué */
-mongoose.connect('mongodb+srv://Rappson:15032000@cluster0.npuwg.mongodb.net/Cluster0?retryWrites=true&w=majority',
+mongoose.connect(`mongodb+srv://${environment.USER_DB}:${environment.PASSWORD_DB}@${environment.HOST}/Cluster0?retryWrites=true&w=majority`,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -22,6 +23,7 @@ app.use(express.json());
 
 // CORS
 app.use((req, res, next) => {
+  // modifié les autorisations 
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');

@@ -1,23 +1,30 @@
 const Sauce = require('../models/Sauce');
 const fs = require('fs');
 const likes = require('../services/like');
+const User = require('../models/user');
+
+const validationJoi = require('../services/joi-create');
+
 
 exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);
-    // je supprime l'id qui sera fourni plus tard
-    delete sauceObject._id;
-    // je recupere mon schema et je fait une nouvelle sauce
-    const sauce = new Sauce({
+
+    const createValidate = validationJoi.validate({
         ...sauceObject,
-        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-        usersLiked: [],
-        usersDisliked: []
+        likes: 0,
+        dislikes: 0,
+        usersLikes: [],
+        usersDislikes: []
     });
-    // je l'enregistre dans la base de donnée
+
+    const sauce = new Sauce({
+        ...createValidate.value,
+        imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+    });
     sauce.save()
-        // j'implémente les resultats de reussite ou d'echec
+
         .then(() => res.status(201).json({ message: 'objet enregistré !' }))
-        .catch(error => res.status(400).json({ message: "Oops !!" + error }));
+        .catch(error => res.status(400).json({ error }));
 };
 
 exports.getAllSauce = (req, res, next) => {
@@ -33,13 +40,44 @@ exports.getOneSauce = (req, res, next) => {
 };
 
 exports.modifySauce = (req, res, next) => {
-    const sauceObject = req.file ?
-        {
-            ...JSON.parse(req.body.sauce),
+    // suppression de l'image modifiée
+    let deleteImg = (Sauce) => {
+        Sauce.findOne({ _id: req.params.id })
+            .then(sauce => {
+                const filename = sauce.imageUrl.split('/images/')[ 1 ];
+                fs.unlink(`images/${filename}`, () => {
+                    console.log(`Image supprimée`);
+                })
+            })
+    };
+    // correctifs
+    let payload = req.body;
+    if (req.file) {
+        deleteImg(Sauce)
+        payload = JSON.parse(req.body.sauce)
+    }
+    // validation des données
+    const { error, value } = validationJoi.validate(payload)
+    // gestion des erreurs
+    if (error) {
+        res.status(400).json({ error });
+        console.log(error);
+        return
+    }
+    // modifications de l'objet en cas de changement d'image
+    if (req.file) {
+        sauceObject = {
+            ...value,
             imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-        } : { ...req.body };
+        }
+    }
+    // modification sans changement d'image
+    else {
+        sauceObject = { ...value }
+    }
+    // sauvegarde de la modification
     Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
-        .then(() => res.status(200).json({ message: 'Sauce modifiée !!' }))
+        .then(() => res.status(200).json({ message: 'Objet modifié' }))
         .catch(error => res.status(400).json({ error }));
 };
 
