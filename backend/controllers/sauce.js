@@ -46,7 +46,7 @@ exports.modifySauce = (req, res, next) => {
             .then(sauce => {
                 const filename = sauce.imageUrl.split('/images/')[ 1 ];
                 fs.unlink(`images/${filename}`, () => {
-                    console.log(`Image supprimée`);
+                    console.log(`Image remplacée`);
                 })
             })
     };
